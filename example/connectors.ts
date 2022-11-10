@@ -11,6 +11,11 @@ import { TorusConnector } from '@web3-react/torus-connector'
 import { TrezorConnector } from '@web3-react/trezor-connector'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { WalletLinkConnector } from '@web3-react/walletlink-connector'
+import { AbstractConnector } from '@web3-react/abstract-connector'
+import { ConnectorUpdate } from '@web3-react/types'
+import { AuthProvider, OreId } from "oreid-js"
+import { WebPopup } from 'oreid-webpopup'
+import Web3 from 'web3'
 
 const POLLING_INTERVAL = 12000
 const RPC_URLS: { [chainId: number]: string } = {
@@ -24,6 +29,60 @@ export const network = new NetworkConnector({
   urls: { 1: RPC_URLS[1], 4: RPC_URLS[4] },
   defaultChainId: 1
 })
+
+export class OreIDConnector extends AbstractConnector {
+  public oreId: OreId
+  constructor() {
+    const chainId = 4
+    super({supportedChainIds: [chainId]})
+  }
+  public async activate(): Promise<ConnectorUpdate> {
+    if (!this.oreId) {
+      this.oreId = new OreId({
+        appName: "ORE ID Sample App",
+        appId: process.env.REACT_APP_OREID_APP_ID || 't_81af705b3f2045d5aa8c5389bec87944',
+        oreIdUrl: "https://service.oreid.io",
+        plugins: {
+          popup: WebPopup(),
+        },
+      })
+      await this.oreId.init().then(async () => {
+        await this.oreId.popup.auth({
+          provider: AuthProvider.Google,
+        })
+      })
+    }
+  }
+  public async getAccount(): Promise<string> {
+    await this.oreId.init()
+    let signingAccount: any
+    await this.oreId.popup.auth(
+      { provider: AuthProvider.Google }
+  
+    )
+    .then(async () => {
+      const userData = await this.oreId.auth.user.getData()
+      signingAccount = userData.chainAccounts.find(
+        (ca) => ca.chainNetwork === "eth_goerli"
+      )
+      // this.chainAccount = signingAccount.chainAccount
+    })
+    return signingAccount.chainAccount
+   }
+   public async getChainId(): Promise<string | number> {
+     return 4
+   }
+   public async getProvider(): Promise<any> {
+    const provider: any = new Web3.providers.HttpProvider('https://rpc.goerli.mudit.blog')
+    return provider
+   }
+   public deactivate(): void {
+     
+   }
+}
+
+export const oreIDConnector = new OreIDConnector()
+ 
 
 export const walletconnect = new WalletConnectConnector({
   rpc: RPC_URLS,
