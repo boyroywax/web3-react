@@ -32,6 +32,7 @@ export const network = new NetworkConnector({
 
 export class OreIDConnector extends AbstractConnector {
   public oreId: OreId
+  public provider = new Web3.providers.HttpProvider('https://rpc.goerli.mudit.blog')
   constructor() {
     const chainId = 4
     super({supportedChainIds: [chainId]})
@@ -52,6 +53,12 @@ export class OreIDConnector extends AbstractConnector {
         })
       })
     }
+    const userData = await this.oreId.auth.user.getData()
+      const signingAccount = userData.chainAccounts.find(
+        (ca) => ca.chainNetwork === "eth_goerli"
+      ) 
+
+      return {provider: this.provider, chainId: 4, account: signingAccount.chainAccount}
   }
   public async getAccount(): Promise<string> {
     await this.oreId.init()
@@ -73,8 +80,7 @@ export class OreIDConnector extends AbstractConnector {
      return 4
    }
    public async getProvider(): Promise<any> {
-    const provider: any = new Web3.providers.HttpProvider('https://rpc.goerli.mudit.blog')
-    return provider
+    return this.provider
    }
    public deactivate(): void {
      
