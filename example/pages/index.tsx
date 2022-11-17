@@ -24,7 +24,7 @@ import {
   magic,
   portis,
   torus,
-  oreIDConnector
+  oreIDConnector,
 } from '../connectors'
 import { Spinner } from '../components/Spinner'
 
@@ -483,6 +483,20 @@ function App() {
             }}
           >
             Kill Torus Session
+          </button>
+        )}
+        {connector === connectorsByName[ConnectorNames.OreId] && (
+          <button
+            style={{
+              height: '3rem',
+              borderRadius: '1rem',
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              ;(connector as any).close()
+            }}
+          >
+            Kill OreId Session
           </button>
         )}
       </div>
