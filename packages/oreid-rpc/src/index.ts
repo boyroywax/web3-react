@@ -34,7 +34,7 @@ public connect(provider: any): JsonRpcSigner {
   // this.oreId.init().then(async () => {
   //   await this.oreId.auth.user.getData()  
   // })
-  provider.connect()
+  // provider.connect()
   return this
 }
  async getAddress(): Promise<string> {
@@ -196,6 +196,8 @@ class OreIdProvider extends JsonRpcProvider {
       params
     }
 
+    
+
 
 
     // interface ErrorResponse {
@@ -246,6 +248,17 @@ public async connect(): Promise<JsonRpcSigner> {
   // return this.signer
 }
 
+public getSigner(addressOrIndex: string | number | undefined): JsonRpcSigner {
+  // this.oreId.init().then(async () => {
+  //   await this.oreId.auth.user.getData()  
+  // })
+  // this.signer.connect()
+  const signer = new OreIdSigner(this).connect(this)
+  return signer
+  // return signer.connect(this)
+  // return this.signer
+}
+
 
  async getAddress(): Promise<string> {
   await this.oreId.init()
@@ -266,24 +279,6 @@ public async connect(): Promise<JsonRpcSigner> {
 
  async _signTypedData(domain: TypedDataDomain, types: Record<string, TypedDataField[]>, value: Record<string, any>): Promise<string> {
    return 'sorry'
- }
-
- async signMessage(message: string | Bytes): Promise<string> {
-  const txn_ = await this.oreId.createTransaction({
-    chainNetwork: ChainNetwork.EthGoerli,
-    chainAccount: this.chainAccount,
-    transaction: {
-      action: [
-        {messaage: message.toString() }
-      ]
-    },
-    signOptions: {
-      broadcast: false,
-      returnSignedTransaction: true
-    }
-
-  })
-  return JSON.stringify(txn_.data.signedTransaction) || "None"
  }
 
  async sendTransaction(transaction: any): Promise<TransactionResponse> {

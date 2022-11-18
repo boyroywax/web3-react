@@ -1,3 +1,27 @@
+# OREID-Connector
+
+## Example App
+Install and run the example app
+1. Install dependencies in the root folder ```yarn install```.
+2. ```cd example```
+3. Install dependencies in the example folder ```yarn install```.
+4. Start the Example ```yarn start```
+5. View the example at http://localhost:3000.
+
+## OREID Web3 Provider & Signer
+>View the ORE ID PROVIDER code in ```./packages/oreid-rpc```
+>View the ORE ID SIGNER code in ```./packages/oreid-rpc```
+When changes are made to the ```./packages/oreid-rpc``` index.ts file the code needs recompiled using ```yarn build```.
+
+## Implement the Web3 Provider into the Controller
+> View the ORE ID CONNECTOR code in ```./example/connectors.ts```
+
+## Notes
+1. Pain point: Web3 Signer is initialized with the current instance of Web3 Provider.
+2. Pain point: web3 Signer expects an ```Web3.providers.HttpProvider``` interface, but currently implementing an JsonRpcProvider.
+
+
+# Original README.md
 # `web3-react` 🧰
 
 _A simple, maximally extensible, dependency minimized framework for building modern [Ethereum dApps](https://ethereum.org/beginners/)_

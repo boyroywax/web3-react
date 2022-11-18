@@ -35,7 +35,8 @@ export class OreIDConnector extends AbstractConnector {
   public oreId: OreId
   // public provider = new Web3.providers.HttpProvider('https://rpc.goerli.mudit.blog')
   // public oreIdSigner = new OreIdSigner()
-  public provider = new OreIdProvider('https://rpc.goerli.mudit.blog')
+  // public provider = new OreIdProvider('https://rpc.goerli.mudit.blog')
+  public provider = new OreIdProvider('https://rpc.ankr.com/eth_goerli')
   
   public constructor() {
     const chainId = 4
