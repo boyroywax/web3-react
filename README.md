@@ -10,7 +10,9 @@ Install and run the example app
 
 ## OREID Web3 Provider & Signer
 >View the ORE ID PROVIDER code in ```./packages/oreid-rpc```
+
 >View the ORE ID SIGNER code in ```./packages/oreid-rpc```
+
 When changes are made to the ```./packages/oreid-rpc``` index.ts file the code needs recompiled using ```yarn build```.
 
 ## Implement the Web3 Provider into the Controller
@@ -19,6 +21,7 @@ When changes are made to the ```./packages/oreid-rpc``` index.ts file the code n
 ## Notes
 1. Pain point: Web3 Signer is initialized with the current instance of Web3 Provider.
 2. Pain point: web3 Signer expects an ```Web3.providers.HttpProvider``` interface, but currently implementing an JsonRpcProvider.
+
 
 
 # Original README.md
