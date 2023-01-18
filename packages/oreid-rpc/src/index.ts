@@ -8,26 +8,27 @@ import { Network } from "@ethersproject/networks"
 // import { HttpProvider } from "web3-core"
 import { TypedDataDomain, TypedDataField, TypedDataSigner } from "@ethersproject/abstract-signer"
 import { HttpProvider } from 'web3-providers-http'
-// import { useOreId } from "oreid-react"
+import { useOreId } from "oreid-react"
 import { JsonRpcProvider, JsonRpcSigner} from "@ethersproject/providers"
 import { JsonRpcPayload, JsonRpcResponse } from "web3-core-helpers"
 // import { RPCProvider } from "index.d copy"
 
-class OreIdSigner extends JsonRpcSigner implements TypedDataSigner {
+class OreIdSigner extends JsonRpcSigner implements Signer {
   public oreId: OreId
   public chainAccount: string = "None"
   // public provider: Provider = new OreIdProvider() as Provider
 
   constructor(provider: any) {
     super({}, provider)
-    this.oreId = new OreId({
-      appName: "ORE ID Sample App",
-      appId: process.env.REACT_APP_OREID_APP_ID || 't_81af705b3f2045d5aa8c5389bec87944',
-      oreIdUrl: "https://service.oreid.io"
-      // plugins: {
-      //   popup: WebPopup(),
-      // },
-    })
+    // this.oreId = new OreId({
+    //   appName: "ORE ID Sample App",
+    //   appId: process.env.REACT_APP_OREID_APP_ID || 't_81af705b3f2045d5aa8c5389bec87944',
+    //   oreIdUrl: "https://service.oreid.io",
+    //   plugins: {
+    //     popup: WebPopup(),
+    //   },
+    // })
+    this.oreId = useOreId()
   }
 
 public connect(provider: any): JsonRpcSigner {
@@ -163,20 +164,21 @@ class OreIdProvider extends JsonRpcProvider {
   public connected: boolean = true
   public httpProvider: any
   // public rpcProvider = new JsonRpcProvider()
-  public provider: JsonRpcProvider = new JsonRpcProvider('https://rpc.ankr.com/eth_goerli')
+  // public provider: JsonRpcProvider = new JsonRpcProvider('https://rpc.ankr.com/eth_goerli')
 
-  constructor(url: string) {
+  constructor(url: string, oreId: OreId) {
     super(url)
     this.host = url
     // this.signer = new OreIdSigner(this.provider)
-    this.oreId = new OreId({
-      appName: "ORE ID Sample App",
-      appId: process.env.REACT_APP_OREID_APP_ID || 't_81af705b3f2045d5aa8c5389bec87944',
-      oreIdUrl: "https://service.oreid.io"
-      // plugins: {
-      //   popup: WebPopup(),
-      // },
-    })
+    // this.oreId = new OreId({
+    //   appName: "ORE ID Sample App",
+    //   appId: process.env.REACT_APP_OREID_APP_ID || 't_81af705b3f2045d5aa8c5389bec87944',
+    //   oreIdUrl: "https://service.oreid.io",
+    //   // plugins: {
+    //   //   popup: WebPopup(),
+    //   // },
+    // })
+    this.oreId = oreId
     this.httpProvider = new Web3.providers.HttpProvider(url)
   }
 
@@ -186,10 +188,19 @@ class OreIdProvider extends JsonRpcProvider {
   public supportsSubscriptions(): boolean {
     return false
   }
+
+  public supportSignTransaction(): boolean {
+    return true
+  }
+
+  public supportPersonalSign(): boolean {
+    return true
+  }
   // public send(payload: JsonRpcPayload, callback?: ((error: Error | null, result: JsonRpcResponse | undefined) => void) | undefined): void {
   public async send(method: string, params: any[]): Promise<any> {
     // const sender = new Web3.providers.HttpProvider(this.host)
-    const jsonrpc = this.host
+    const jsonrpc = this.getSigner("0").connect(this.httpProvider)
+    0 
     const payload: JsonRpcPayload = {
       jsonrpc,
       method,
@@ -214,14 +225,6 @@ class OreIdProvider extends JsonRpcProvider {
     //   }
     // }
     // const
-    const callback = (error: Error | null, result: JsonRpcResponse | undefined) => {
-      // const name = "InternalServiceError"
-      // const message = "This is an Error"
-      // const error1: Error = new Error(message)
-      console.log(error + String(result))
-      // return new ErrorResponse1(null, undefined)
-      return result
-    }
     // const result: JsonRpcResponse = {
     //   jsonrpc: this.host,
     //   id: 1
@@ -237,12 +240,21 @@ class OreIdProvider extends JsonRpcProvider {
     return sent
   }
 
+// public async callback(error: Error | null, result: JsonRpcResponse | undefined) {
+//     // const name = "InternalServiceError"
+//     // const message = "This is an Error"
+//     // const error1: Error = new Error(message)
+//     console.log(error + String(result))
+//     // return new ErrorResponse1(null, undefined)
+//     return result
+//   }
+
 public async connect(): Promise<JsonRpcSigner> {
   // this.oreId.init().then(async () => {
   //   await this.oreId.auth.user.getData()  
   // })
   // this.signer.connect()
-  const signer = new OreIdSigner(this).connect(this)
+  const signer = new OreIdSigner(this.host).connect(this.host)
   return signer
   // return signer.connect(this)
   // return this.signer
@@ -253,7 +265,8 @@ public getSigner(addressOrIndex: string | number | undefined): JsonRpcSigner {
   //   await this.oreId.auth.user.getData()  
   // })
   // this.signer.connect()
-  const signer = new OreIdSigner(this).connect(this)
+  // const signer = new OreIdSigner(this, this.oreId).connect(this.httpProvider)
+  const signer = new OreIdSigner(this.host).connect(this.host)
   return signer
   // return signer.connect(this)
   // return this.signer
@@ -361,8 +374,8 @@ export class OreIdHttpProvider extends OreIdProvider {
     public network_url: string
     // public httpProvider = new Web3.providers.HttpProvider('https://rpc.goerli.mudit.blog')
   
-    constructor(network_url: string) {
-      super(network_url)
+    constructor(network_url: string, oreId: OreId) {
+      super(network_url, oreId)
       this.network_url = network_url
     }
   
@@ -394,11 +407,11 @@ export class OreIdHttpProvider extends OreIdProvider {
       return blockNum
     }
 
-    // public getSigner(): OreIdSigner {
-    //   // const oreIdSigner = this.provider.getSigner()
-    //   // const oreIdSigner = this.getSigner()
-    //   // return oreIdSigner
-    // }
+    public getSigner(account: any): OreIdSigner {
+      const oreIdSigner = new OreIdSigner(this.httpProvider)
+      // const oreIdSigner = this.getSigner()
+      return oreIdSigner
+    }
   
     // public async getTransaction(transactionHash: string): Promise<TransactionResponse> {
       
