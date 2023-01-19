@@ -16,7 +16,8 @@ import { ConnectorUpdate } from '@web3-react/types'
 import { AuthProvider, OreId } from "oreid-js"
 import { WebPopup } from 'oreid-webpopup'
 import Web3 from 'web3'
-import { OreIdProvider, OreIdSigner, RPCProvider, OreIdHttpProvider } from '../packages/oreid-rpc'
+import { OreIdProvider, OreIdSigner, OreIdHttpProvider } from '../packages/oreid-rpc'
+import { JsonRpcProvider } from '@ethersproject/providers'
 
 const POLLING_INTERVAL = 12000
 const RPC_URLS: { [chainId: number]: string } = {
@@ -33,10 +34,11 @@ export const network = new NetworkConnector({
 
 export class OreIDConnector extends AbstractConnector {
   public oreId: OreId
-  public provider = new Web3.providers.HttpProvider('https://rpc.goerli.mudit.blog')
-  // public oreIdSigner = new OreIdSigner()
+  public provider: JsonRpcProvider
+
+  // public provider = new Web3.providers.HttpProvider('https://rpc.goerli.mudit.blog')
+  // public oreIdSigner = new OreIdSigner(this.provider)
   // public provider = new OreIdProvider('https://rpc.goerli.mudit.blog')
-  // public provider = new OreIdProvider('https://rpc.ankr.com/eth_goerli')
   // public provider = new OreIdHttpProvider('https://rpc.ankr.com/eth_goerli')
   
   public constructor() {
@@ -44,6 +46,7 @@ export class OreIDConnector extends AbstractConnector {
     super({supportedChainIds: [chainId]})
     // this.httpProvider['signer'] = this.oreIdSigner
     // this.provider = this.httpProvider
+    this.provider = new OreIdProvider('https://rpc.ankr.com/eth_goerli', this.oreId)
   }
   public async activate(): Promise<ConnectorUpdate> {
     if (!this.oreId) {
@@ -96,6 +99,9 @@ export class OreIDConnector extends AbstractConnector {
    public async close() {
     await this.oreId.logout()
     this.emitDeactivate()
+   }
+   public async personal_sign(message: any): Promise<any> {
+    return 'hello'
    }
 }
 
